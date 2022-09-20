@@ -1,0 +1,73 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "k8r5jhxzPX8N"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "def srrcDesign ( SPS, span, beta ):\n",
+        "invalidParameter = False\n",
+        "if (SPS <= 1):\n",
+        "print('srrcDesign.py: SPS must be greater than 1')\n",
+        "invalidParameter = True\n",
+        "if ((int(SPS) - SPS) > 1e-10):\n",
+        "print('srrcDesign.py: SPS must be an integer')\n",
+        "invalidParameter = True\n",
+        "if (span < 1):\n",
+        "print('srrcDesign.py: span must be greater than or equal to 1')\n",
+        "invalidParameter = True\n",
+        "if ((int(span) - span) > 1e-10):\n",
+        "print('srrcDesign.py: span must be an integer')\n",
+        "invalidParameter = True\n",
+        "if (beta < 0):\n",
+        "print('srrcDesign.py: beta must be greater than or equal to 0')\n",
+        "invalidParameter = True\n",
+        "# check to see if a bad parameter was passed in\n",
+        "if (invalidParameter):\n",
+        "# return empty filter weights\n",
+        "return []\n",
+        "else: # parameters valid, proceed with design\n",
+        "# build the time indexing\n",
+        "nList = np.arange(-span*SPS,(span*SPS)+1)\n",
+        "# pre-allocate memory for weights\n",
+        "weights = np.zeros(len(nList))\n",
+        "# compute the weights on a sample by sample basis\n",
+        "for index in range(len(nList)):\n",
+        "# select the time index\n",
+        "n = nList[index]\n",
+        "# design equations\n",
+        "if (n == 0):\n",
+        "weights[index] = (1/np.sqrt(SPS))*((1-beta) + \n",
+        "(4*beta/np.pi))\n",
+        "elif (np.abs(n*4*beta) == SPS):\n",
+        "weights[index] = (beta/np.sqrt(2*SPS))*( \n",
+        "(1+(2/np.pi))*np.sin(np.pi/(4*beta)) + (1-(2/np.pi))* np.cos(np.pi/(4*beta)) )\n",
+        "else:\n",
+        "weights[index] = (1/np.sqrt(SPS))*( (np.sin(np.pi*n*(1-\n",
+        "beta)/SPS)) + (4*beta*n/SPS)*(np.cos(np.pi*n*(1+beta)/SPS)) ) / ( (np.pi*n/SPS) \n",
+        "* (1 - (4*beta*n/SPS)**2) )\n",
+        "# scale the weights to 0 dB gain at f=0\n",
+        "weights = weights/np.sqrt(SPS)\n",
+        "return weights"
+      ]
+    }
+  ]
+}
